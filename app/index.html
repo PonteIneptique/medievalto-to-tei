@@ -136,7 +136,7 @@
           results = document.querySelector("#results"),
           results_ul = results.querySelector("ul");
 
-    const gather_regex = /\[([^\|\]]+)\|([^\]]+)\]/gm,
+    const gather_regex = /\[([^\|\]]+|[^\|\]]*\[\s+\][^\|\]]*)\|([^\]]+)\]/gm,
           spaces = /\s/;
 
     const formatText = (before, after, previous) => {
@@ -162,9 +162,9 @@
     }
 
     const updateTEI = function(){
-      let out = inp.value.replace(/(\[[^\|\]]\]+)/gm, "<choice type=\"hyphenization\"><orig>$1</orig><corr></corr></choice>")
+      let out = inp.value.replace(gather_regex, "<choice><abbr>$1</abbr><expan>$2</expan></choice>")
+                         .replace(/(\[[^\|\]]\]+)/gm, "<choice type=\"hyphenization\"><orig>$1</orig><corr></corr></choice>")
                          .replace(/•/gm, "<choice type=\"add-space\"><orig></orig><corr> </corr></choice>")
-                         .replace(gather_regex, "<choice><abbr>$1</abbr><expan>$2</expan></choice>")
                          .replace(/\r?\n/g, "<lb></lb>");
       //preview.innerHTML = "";
       //preview.append(CETEIcean.makeHTML5(`<div><ab>${out}</ab></div>`));
