@@ -84,16 +84,26 @@
 <body>
 
   <div class="container">
-    <h1>Quick test</h1>
+    <h1>Medievalto to TEI with resolution</h1>
+    <div class="text-muted fst-italic" style="font-size: .8rem;">
+      <p>You can use the following nice shortcuts: </p>
+      <ul>
+        <li>Select your text and press <kbd>[</kbd> for wrapping the text with abbreviation resolution character.</li>
+        <li>Do <kbd>Shift</kbd> + <kbd>Backspace</kbd> to remove a space (hyphenation)</li>
+        <li>Do <kbd>Shift</kbd> + <kbd>Space</kbd> to add a space</li>
+        <li><kbd>Control</kbd> + <kbd>Enter</kbd> refresh the preview on the right</li>
+      </ul>
+      <p><a class="btn btn-sm btn-outline-secondary disabled">Automatic abbr.</a> tries to find the abbreviation you already treated and apply them to other element in the text.</p>
+    </div>
     <div class="row">
-      <div class="col-md-6">
-        <div class="btn-group m-2" id="toolbar">
-          <a href="#" class="btn btn-outline-primary" id="add-space" data-before="•"><i class="bi-node-plus"></i> Insert space</a>
-          <a href="#" class="btn btn-outline-primary" id="rem-space" data-before="[" data-after="]"><i class="bi-node-minus"></i> Remove space</a>
-          <a href="#" class="btn btn-outline-primary" id="resolve-abbr" data-before="[" data-after="|$$1]"><i class="bi bi-arrows-angle-expand"></i> Resolve abbreviation</a>
-          <a href="#" class="btn btn-outline-primary" id="apply-abbr"><i class="bi bi-search"></i> Search and reapply abbreviation</a>
+      <div class="col-md-6 text-center">
+        <div class="btn-group  btn-group-sm m-2 " id="toolbar">
+          <a href="#" class="btn btn-sm btn-outline-secondary" id="add-space" data-before="•"><i class="bi-node-plus"></i> Add space</a>
+          <a href="#" class="btn btn-sm btn-outline-secondary" id="rem-space" data-before="[" data-after="]"><i class="bi-node-minus"></i> Remove space</a>
+          <a href="#" class="btn btn-sm btn-outline-secondary" id="resolve-abbr" data-before="[" data-after="|$$1]"><i class="bi bi-arrows-angle-expand"></i> Resolve abbr.</a>
+          <a href="#" class="btn btn-sm  btn-outline-secondary" id="apply-abbr"><i class="bi bi-search"></i> Automatic abbr.</a>
         </div>
-        <div id="results" style="display: none;">
+        <div id="results" class="text-start" style="display: none;">
           <div class="row">
             <div class="col-9">
               <ul ></ul>
@@ -106,7 +116,7 @@
         <textarea class="form-control m-2 h-100" id="xml"></textarea>
       </div>
       <div class="col-md-6">
-        <div class="btn-group m-2">
+        <div class="btn-group btn-group-sm m-2">
           <a href="#" class="btn btn-outline-primary" id="toggle-hide"><i class="bi-eye-slash"></i> Toggle visibility of original text</a>
         </div>
         <div class="m-2 p-2 border-1 round" id="preview">
@@ -126,19 +136,28 @@
           results = document.querySelector("#results"),
           results_ul = results.querySelector("ul");
 
-    const gather_regex = /\[([^\|\]]+)\|([^\]]+)\]/gm;
+    const gather_regex = /\[([^\|\]]+)\|([^\]]+)\]/gm,
+          spaces = /\s/;
 
-    const formatText = (before, after) => {
-      var start = inp.selectionStart,
-        end = inp.selectionEnd,
-        len = inp.value.length,
-        text = inp.value.substring(start, end);
+    const formatText = (before, after, previous) => {
+      if (previous === true) {
+        var start = inp.selectionStart-1,
+            end = inp.selectionEnd;
+      } else {
+        var start = inp.selectionStart,
+          end = inp.selectionEnd;
+      }
+      var len = inp.value.length,
+          text = inp.value.substring(start, end);
 
-      if (text) {
+      if (after !== undefined && after !== false && text) {
         inp.value = inp.value.substring(0, start) + before + text + after.replace("$$1", text) + inp.value.substring(end, len);
+        var selection = start + before.length + after.replace("$$1", text).length + text.length;
+        inp.setSelectionRange(selection, selection);
       }
       else {
         inp.value = inp.value.substring(0, start) + before + inp.value.substring(end, len);
+        inp.setSelectionRange(start + before.length, start + before.length);
       }
     }
 
@@ -194,6 +213,22 @@
       e.preventDefault();
       console.log("HI");
       results.style.display = "none";
+    });
+
+    inp.addEventListener("keydown", function(e) {
+      if (e.key == "[" && inp.selectionStart != inp.selectionEnd) {
+        e.preventDefault();
+        formatText("[","|]");
+      } else if (e.key == "Backspace" && e.shiftKey == true && inp.value.substring(inp.selectionStart-1, inp.selectionEnd).match(spaces) !== null) {
+        e.preventDefault();
+        formatText("[", "]", true);
+      } else if (e.key == " " && e.shiftKey == true) {
+        e.preventDefault();
+        formatText("•", false, false);
+      } else if (e.key == "Enter" && e.ctrlKey == true) {
+        e.preventDefault();
+        updateTEI();
+      }
     });
 
     inp.addEventListener("change", updateTEI);
