@@ -1,0 +1,20 @@
+{% extends "container.html" %}
+
+{% block body %}
+<h1>{{ doc.doc_title}}</h1>
+<div class="row row-cols-1 row-cols-md-4 g-4">
+    {% for page in pages %}
+    <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h2 class="card-title text-center"><i class="bi bi-file"></i></h2>
+            <h3 class="card-subtitle mb-2 text-muted h6">{{page.page_title}}</h3>
+              <p class="card-text text-center">
+                  <a href="#" class="btn btn-sn btn-primary"><i class="bi bi-eye"></i> Edit</a>
+              </p>
+          </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

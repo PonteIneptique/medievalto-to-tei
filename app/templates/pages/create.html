@@ -1,0 +1,25 @@
+{% extends "container.html" %}
+
+{% block body %}
+<h1>Create a document</h1>
+<form method="POST" action="{{url_for('docs_add')}}" enctype="multipart/form-data">
+  <div class="mb-3 row">
+    <label for="docTitle" class="col-sm-2 col-form-label">Document title</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="docTitle" name="docTitle" maxlength="128" />
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label for="docZip" class="col-sm-2 col-form-label">Document (Pages in a zip)</label>
+    <div class="col-sm-10">
+        <input type="file" class="form-control" id="docZip" name="docZip" />
+        <p class="text-muted">This should be a zip with XML ALTO 4 files.</p>
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <div class="col-sm-3">
+        <button class="btn btn-primary">Submit</button>
+    </div>
+  </div>
+</form>
+{% endblock %}
