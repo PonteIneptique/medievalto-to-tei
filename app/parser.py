@@ -30,11 +30,14 @@ def parse_zip(io_content: IO) -> Iterable[str]:
     with ZipFile(io_content) as zf:
         for file in zf.namelist():
             if file.endswith('.xml'):
-                with zf.open(file) as f:
-                    yield file, "\n".join([
-                        string.attrib["CONTENT"]
-                        for string in ET.parse(f).findall("//{*}TextLine/{*}String")
-                    ])
+                try:
+                    with zf.open(file) as f:
+                        yield file, "\n".join([
+                            string.attrib["CONTENT"]
+                            for string in ET.parse(f).findall("//{*}TextLine/{*}String")
+                        ])
+                except ET.XMLSyntaxError:
+                    continue
             elif file.endswith(".txt"):
                 with zf.open(file) as f:
                     yield file, f.read().decode("UTF-8")
