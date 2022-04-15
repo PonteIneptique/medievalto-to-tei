@@ -1,0 +1,13 @@
+{% extends "container.html" %}
+
+{% block body %}
+<div class="card border-danger col-md-6 offset-md-3">
+  <h5 class="card-header bg-danger text-white">{{ doc.doc_title}}</h5>
+  <div class="card-body">
+    <h5 class="card-title">Delete a document ?</h5>
+    <p class="card-text">Click on the button below to confirm the deletion of <a href="{{url_for('pages_all', doc_id=doc.doc_id)}}">{{doc.doc_title}}</a>.</p>
+    <a href="{{url_for('pages_all', doc_id=doc.doc_id)}}" class="btn btn-secondary">Go back</a>
+      <a href="{{url_for('doc_delete', doc_id=doc.doc_id, confirm='ok')}}" class="btn btn-danger">Confirm</a>
+  </div>
+</div>
+{% endblock %}

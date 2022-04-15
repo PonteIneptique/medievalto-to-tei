@@ -5,6 +5,9 @@
 <h2 class="h4">Options</h2>
 <div class="p-2 offset-1">
     <a class="btn btn-sm btn-primary" href="{{url_for('doc_abbr', doc_id=doc.doc_id)}}"><i class="bi bi-arrows-angle-expand"></i> Table of Abbreviations</a>
+    <a class="btn btn-sm btn-primary" href="{{url_for('doc_tei', doc_id=doc.doc_id)}}"><i class="bi bi-eye"></i> Get TEI</a>
+    <a class="btn btn-sm btn-primary" href="{{url_for('doc_txt', doc_id=doc.doc_id)}}"><i class="bi bi-eye"></i> Get Zip (Textfile)</a>
+    <a class="btn btn-sm btn-danger" href="{{url_for('doc_delete', doc_id=doc.doc_id)}}"><i class="bi bi-x"></i> Delete</a>
 </div>
 <h2 class="h4">Documents</h2>
 <div class="row row-cols-1 row-cols-md-4 g-4">

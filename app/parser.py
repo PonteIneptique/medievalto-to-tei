@@ -1,7 +1,7 @@
 from zipfile import ZipFile
 from typing import Iterable, IO, Dict, TYPE_CHECKING
 import lxml.etree as ET
-import re
+import regex as re
 from collections import defaultdict, Counter
 
 if TYPE_CHECKING:
@@ -9,12 +9,7 @@ if TYPE_CHECKING:
 
 __all__ = ["page_to_tei", "parse_zip", "get_all_abbreviations", "apply_abbreviations"]
 
-"""
-"<choice><abbr>$1</abbr><expan>$2</expan></choice>")
-.replace(/(\[[^\|\]]\]+)/gm, "<choice type=\"hyphenization\"><orig>$1</orig><corr></corr></choice>")
-.replace(/•/gm, "<choice type=\"add-space\"><orig></orig><corr> </corr></choice>")
-.replace(/\r?\n/g, "<lb></lb>");
-"""
+
 _re_abbr = re.compile(r"\[([^\|\]]+|[^\|\]]*\[\s+\][^\|\]]*)\|([^\]]+)\]", flags=re.MULTILINE)
 _re_hyph = re.compile(r"\[([^\|\]]+)\]", flags=re.MULTILINE)
 _re_adds = re.compile(r"•", flags=re.MULTILINE)
@@ -73,7 +68,7 @@ def apply_abbreviations(pages: Iterable["Page"], abbreviations: _ABBR_DICT) -> D
         for abbr, replacements in abbreviations.items():
             if len(replacements) == 1:
                 repl = list(replacements.keys())[0]
-                regex = re.compile(rf"([\W]+)(?<!\[)({abbr})(?!\|)([\W]+)")
+                regex = re.compile(r"([\p{Punct}\s]+)"+rf"(?<!\[)({abbr})(?!\|)"+r"([\p{Punct}\s]+)")
                 nb = regex.findall(page.page_content)
                 if nb:
                     done[page.page_title][abbr][repl] = len(nb)
