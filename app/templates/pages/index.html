@@ -6,9 +6,9 @@
     {% for document in docs %}
     <div class="col">
         <div class="card">
+          <img src="{{url_for('static', filename='images/doc.png')}}" class="card-img-top" alt="Document" />
           <div class="card-body">
-            <h2 class="card-title text-center"><i class="bi bi-archive"></i></h2>
-            <h3 class="card-subtitle mb-2 text-muted h6">{{document.doc_title}}</h3>
+            <h2 class="card-subtitle mb-2 text-muted h6">{{document.doc_title}}</h2>
               <p class="card-text text-center">
                   <a href="{{ url_for('pages_all', doc_id=document.doc_id)}}" class="btn btn-sn btn-primary"><i class="bi bi-eye"></i> Edit</a>
               </p>

@@ -6,11 +6,12 @@
     {% for page in pages %}
     <div class="col">
         <div class="card">
+          <img src="{{url_for('static', filename='images/page.png')}}" class="card-img-top" alt="Page" />
           <div class="card-body">
-            <h2 class="card-title text-center"><i class="bi bi-file"></i></h2>
             <h3 class="card-subtitle mb-2 text-muted h6">{{page.page_title}}</h3>
               <p class="card-text text-center">
-                  <a href="#" class="btn btn-sn btn-primary"><i class="bi bi-eye"></i> Edit</a>
+                  <a href="{{ url_for('pages_get', doc_id=doc.doc_id, page_id=page.page_id) }}" class="btn btn-sn btn-primary"><i class="bi bi-eye"></i> Edit</a>
+                  <a href="{{ url_for('pages_tei', doc_id=doc.doc_id, page_id=page.page_id) }}" class="btn btn-sn btn-secondary"><i class="bi bi-eye"></i> TEI</a>
               </p>
           </div>
         </div>
