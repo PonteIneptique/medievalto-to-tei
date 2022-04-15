@@ -7,7 +7,7 @@
 }
 
 
-textarea, #preview {
+textarea, #preview, .junicode {
     font-family: 'Junicode Two Beta' !important;
 }
 

@@ -1,7 +1,8 @@
 from zipfile import ZipFile
-from typing import Iterable, IO
+from typing import Iterable, IO, Dict
 import lxml.etree as ET
 import re
+from collections import defaultdict, Counter
 
 __all__ = ["page_to_tei", "parse_zip"]
 
@@ -12,7 +13,7 @@ __all__ = ["page_to_tei", "parse_zip"]
 .replace(/\r?\n/g, "<lb></lb>");
 """
 _re_abbr = re.compile(r"\[([^\|\]]+|[^\|\]]*\[\s+\][^\|\]]*)\|([^\]]+)\]", flags=re.MULTILINE)
-_re_hyph = re.compile(r"(\[[^\|\]]\]+)", flags=re.MULTILINE)
+_re_hyph = re.compile(r"\[([^\|\]]+)\]", flags=re.MULTILINE)
 _re_adds = re.compile(r"•", flags=re.MULTILINE)
 _re_new_line = re.compile(r"\r?\n", flags=re.MULTILINE)
 
@@ -37,4 +38,21 @@ def parse_zip(io_content: IO) -> Iterable[str]:
 
 
 def page_to_tei(content: str) -> str:
-    return _re_abbr.sub(r"<choice><abbr>\g<1></abbr><expan>\g<2></expan></choice>", content)
+    return _re_new_line.sub(
+        "\n<lb />",
+        _re_adds.sub(
+            r'<choice type="add-space"><orig></orig><corr> </corr></choice>',
+            _re_hyph.sub(
+                r'<choice type="hyphenization"><orig>\g<1></orig><corr></corr></choice>',
+                _re_abbr.sub(r"<choice><abbr>\g<1></abbr><expan>\g<2></expan></choice>", content)
+            )
+        )
+    )
+
+
+def get_all_abbreviations(documents: Iterable[str]) -> Dict[str, Dict[str, int]]:
+    abbrs = defaultdict(Counter)
+    for doc in documents:
+        for abbr, orig in _re_abbr.findall(doc):
+            abbrs[_re_hyph.sub("", abbr)][orig] += 1
+    return abbrs

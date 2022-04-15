@@ -1,0 +1,21 @@
+{% extends "container.html" %}
+
+{% block body %}
+<h1>{{ doc.doc_title}}</h1>
+<div class="p-2 offset-1">
+    <a class="btn btn-sm btn-primary" href="{{url_for('doc_abbr', doc_id=doc.doc_id, download='csv')}}"><i class="bi bi-download"></i> CSV</a>
+    <a class="btn btn-sm btn-primary" href="{{url_for('doc_abbr', doc_id=doc.doc_id, download='json')}}"><i class="bi bi-download"></i> JSON</a>
+</div>
+<table class="table table-hover">
+    <thead>
+        <tr><th>Abbreviation</th><th>Resolution</th><th>Count</th></tr>
+    </thead>
+    <tbody>
+        {% for abbr in abbrs %}
+            {% for res, res_count in abbrs[abbr].items() %}
+            <tr><td>{{abbr}}</td><td>{{res}}</td><td>{{res_count}}</td></tr>
+            {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

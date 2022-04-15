@@ -1,7 +1,10 @@
+import csv
+import io
+
 from flask import render_template, request, redirect, url_for, jsonify, Response
 from app import app, db
 from app.models import Doc, Page
-from app.parser import parse_zip, page_to_tei
+from app.parser import parse_zip, page_to_tei, get_all_abbreviations
 
 
 @app.route("/")
@@ -53,11 +56,36 @@ def pages_get(doc_id: int, page_id: int):
     return render_template("pages/edit.html", doc=doc, page=page)
 
 
-@app.route("/documents/<int:doc_id>/pages/<int:page_id>/tei", methods=["GET"])
+@app.route("/documents/<int:doc_id>/pages/<int:page_id>/tei")
 def pages_tei(doc_id: int, page_id: int):
     doc = Doc.query.get_or_404(doc_id)
     page = Page.query.get_or_404(page_id)
 
     return Response(f"""<?xml version="1.0" encoding="UTF-8"?>
-<div xmlns="http://www.tei-c.org/ns/1.0"><ab>{page_to_tei(page.page_content)}</ab></div>""",
+<div xmlns="http://www.tei-c.org/ns/1.0">\n\t<ab>{page_to_tei(page.page_content)}\n\t</ab>\n</div>""",
                     mimetype="text/xml")
+
+
+@app.route("/documents/<int:doc_id>/table")
+def doc_abbr(doc_id: int):
+    doc = Doc.query.get_or_404(doc_id)
+    pages = Page.query.filter(Page.doc_id == doc.doc_id).all()
+    abbrs = get_all_abbreviations([page.page_content for page in pages])
+    if request.args.get("download") == "json":
+        return jsonify(abbrs)
+    elif request.args.get("download") == "csv":
+        file = io.StringIO()
+        writer = csv.writer(file)
+        writer.writerow(["Abbreviation", "Resolution", "Count"])
+        for abb, resolutions in abbrs.items():
+            for (res, res_count) in resolutions.items():
+                writer.writerow([abb, res, str(res_count)])
+        file.seek(0)
+        return Response(file.read(), mimetype="text/csv", headers={
+            'Content-Disposition': 'attachment; filename="abbreviation.csv"'
+        })
+    return render_template(
+        "pages/table.html",
+        doc=doc,
+        abbrs=abbrs
+    )
