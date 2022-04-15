@@ -1,10 +1,13 @@
 from zipfile import ZipFile
-from typing import Iterable, IO, Dict
+from typing import Iterable, IO, Dict, TYPE_CHECKING
 import lxml.etree as ET
 import re
 from collections import defaultdict, Counter
 
-__all__ = ["page_to_tei", "parse_zip"]
+if TYPE_CHECKING:
+    from app.models import Page
+
+__all__ = ["page_to_tei", "parse_zip", "get_all_abbreviations", "apply_abbreviations"]
 
 """
 "<choice><abbr>$1</abbr><expan>$2</expan></choice>")
@@ -50,9 +53,26 @@ def page_to_tei(content: str) -> str:
     )
 
 
-def get_all_abbreviations(documents: Iterable[str]) -> Dict[str, Dict[str, int]]:
+_ABBR_DICT = Dict[str, Dict[str, int]]
+
+
+def get_all_abbreviations(documents: Iterable[str]) -> _ABBR_DICT:
     abbrs = defaultdict(Counter)
     for doc in documents:
         for abbr, orig in _re_abbr.findall(doc):
             abbrs[_re_hyph.sub("", abbr)][orig] += 1
     return abbrs
+
+
+def apply_abbreviations(pages: Iterable["Page"], abbreviations: _ABBR_DICT) -> Dict[str, _ABBR_DICT]:
+    done = defaultdict(lambda: defaultdict(Counter))
+    for page in pages:
+        for abbr, replacements in abbreviations.items():
+            if len(replacements) == 1:
+                repl = list(replacements.keys())[0]
+                regex = re.compile(rf"([\W]+)(?<!\[)({abbr})(?!\|)([\W]+)")
+                nb = regex.findall(page.page_content)
+                if nb:
+                    done[page.page_title][abbr][repl] = len(nb)
+                    page.page_content = regex.sub(rf"\g<1>[\g<2>|{repl}]\g<3>", page.page_content)
+    return done

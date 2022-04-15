@@ -4,7 +4,7 @@ import io
 from flask import render_template, request, redirect, url_for, jsonify, Response
 from app import app, db
 from app.models import Doc, Page
-from app.parser import parse_zip, page_to_tei, get_all_abbreviations
+from app.parser import parse_zip, page_to_tei, get_all_abbreviations, apply_abbreviations
 
 
 @app.route("/")
@@ -88,4 +88,31 @@ def doc_abbr(doc_id: int):
         "pages/table.html",
         doc=doc,
         abbrs=abbrs
+    )
+
+
+@app.route("/documents/<int:doc_id>/table/apply")
+def doc_apply_abbrs(doc_id: int):
+    doc = Doc.query.get_or_404(doc_id)
+    pages = Page.query.filter(Page.doc_id == doc.doc_id).all()
+    abbrs = get_all_abbreviations([page.page_content for page in pages])
+    modifications = apply_abbreviations(pages, abbreviations=abbrs)
+    nb_modifications = sum([
+        amount
+        for changes in modifications.values()
+        for _abbreviations in changes.values()
+        for amount in _abbreviations.values()
+    ])
+    if len(abbrs):
+        db.session.bulk_save_objects([
+            page
+            for page in pages
+            if page.page_title in modifications
+        ])
+        db.session.commit()
+    return render_template(
+        "pages/table-applied.html",
+        doc=doc,
+        modifications=modifications,
+        nb_modifications=nb_modifications
     )

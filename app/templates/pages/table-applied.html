@@ -1,0 +1,23 @@
+{% extends "container.html" %}
+
+{% block body %}
+<h1>
+    {{ doc.doc_title}}
+    <a class="btn btn-sm btn-info" href="{{url_for('pages_all', doc_id=doc.doc_id)}}"><i class="bi bi bi-arrow-return-left"></i></a>
+</h1>
+<p>{{nb_modifications}} done.</p>
+<table class="table table-hover">
+    <thead>
+        <tr><th>Page</th><th>Abbreviation</th><th>Resolution</th><th>Count</th></tr>
+    </thead>
+    <tbody>
+    {% for page, abbrs in modifications.items() %}
+        {% for abbr in abbrs %}
+            {% for res, res_count in abbrs[abbr].items() %}
+                <tr><td>{{page}}</td><td>{{abbr}}</td><td>{{res}}</td><td>{{res_count}}</td></tr>
+            {% endfor %}
+        {% endfor %}
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
