@@ -37,7 +37,7 @@ def parse_zip(io_content: IO) -> Iterable[str]:
                     ])
             elif file.endswith(".txt"):
                 with zf.open(file) as f:
-                    yield file, f.read()
+                    yield file, f.read().decode("UTF-8")
 
 
 def page_to_tei(content: str) -> str:
