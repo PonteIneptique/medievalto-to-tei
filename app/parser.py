@@ -1,5 +1,6 @@
 from zipfile import ZipFile
-from typing import Iterable, IO, Dict, TYPE_CHECKING
+from typing import Iterable, IO, Dict, TYPE_CHECKING, Optional
+from dataclasses import dataclass
 import lxml.etree as ET
 import regex as re
 from collections import defaultdict, Counter
@@ -16,7 +17,14 @@ _re_adds = re.compile(r"•", flags=re.MULTILINE)
 _re_new_line = re.compile(r"\r?\n", flags=re.MULTILINE)
 
 
-def parse_zip(io_content: IO) -> Iterable[str]:
+@dataclass
+class ParseStatus:
+    filename: str
+    status: bool
+    content: Optional[str] = None
+
+
+def parse_zip(io_content: IO) -> Iterable[ParseStatus]:
     """ Reads an open zip and yield the string content of each XML
 
     :param io_content: Open ZIP
@@ -27,15 +35,18 @@ def parse_zip(io_content: IO) -> Iterable[str]:
             if file.endswith('.xml'):
                 try:
                     with zf.open(file) as f:
-                        yield file, "\n".join([
+                        yield ParseStatus(file, True, "\n".join([
                             string.attrib["CONTENT"]
                             for string in ET.parse(f).findall("//{*}TextLine/{*}String")
-                        ])
+                        ]))
                 except ET.XMLSyntaxError:
-                    continue
+                    yield ParseStatus(file, False, "Impossible to parse the XML")
             elif file.endswith(".txt"):
-                with zf.open(file) as f:
-                    yield file, f.read().decode("UTF-8")
+                try:
+                    yield ParseStatus(file, True, zf.read(file).decode())
+                except UnicodeDecodeError as E:
+                    yield ParseStatus(file, False, "Impossible to read the text fi;e")
+
 
 
 def page_to_tei(content: str) -> str:

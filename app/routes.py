@@ -23,12 +23,13 @@ def docs_add():
         document = Doc(doc_title=request.form["docTitle"])
         db.session.add(document)
         db.session.flush()
-        for file, content in parse_zip(request.files["docZip"]):
-            db.session.add(Page(
-                doc_id=document.doc_id,
-                page_title=file,
-                page_content=content
-            ))
+        for parse_status in parse_zip(request.files["docZip"]):
+            if parse_status.status:
+                db.session.add(Page(
+                    doc_id=document.doc_id,
+                    page_title=parse_status.filename,
+                    page_content=parse_status.content
+                ))
         db.session.commit()
         return redirect(url_for("index"))
     return render_template("pages/create.html")
