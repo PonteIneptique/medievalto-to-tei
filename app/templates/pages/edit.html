@@ -1,0 +1,57 @@
+{% extends "container.html" %}
+
+{% block body %}
+<h1>Edit {{page.page_title}}
+    <a class="btn btn-sm btn-info" href="{{url_for('pages_all', doc_id=doc.doc_id)}}"><i class="bi bi bi-arrow-return-left"></i></a>
+</h1>
+<div class="text-muted fst-italic" style="font-size: .8rem;">
+  <p>You can use the following nice shortcuts: </p>
+  <ul>
+    <li>Select your text and press <kbd>[</kbd> for wrapping the text with abbreviation resolution character.</li>
+    <li>Do <kbd>Shift</kbd> + <kbd>Backspace</kbd> to remove a space (hyphenation)</li>
+    <li>Do <kbd>Shift</kbd> + <kbd>Space</kbd> to add a space</li>
+    <li><kbd>Control</kbd> + <kbd>Enter</kbd> refresh the preview on the right</li>
+  </ul>
+  <p><a class="btn btn-sm btn-outline-secondary disabled">Automatic abbr.</a> tries to find the abbreviation you already treated and apply them to other element in the text.</p>
+</div>
+<form id="form-tei" method="POST" action="{{url_for('pages_get', doc_id=doc.doc_id, page_id=page.page_id)}}">
+  <div class="row">
+    <div class="col-md-6 text-center">
+      <div class="btn-group  btn-group-sm m-2 " id="toolbar">
+        <a href="#" class="btn btn-sm btn-outline-secondary" id="add-space" data-before="•"><i class="bi-node-plus"></i> Add space</a>
+        <a href="#" class="btn btn-sm btn-outline-secondary" id="rem-space" data-before="[" data-after="]"><i class="bi-node-minus"></i> Remove space</a>
+        <a href="#" class="btn btn-sm btn-outline-secondary" id="resolve-abbr" data-before="[" data-after="|$$1]"><i class="bi bi-arrows-angle-expand"></i> Resolve abbr.</a>
+        <a href="#" class="btn btn-sm  btn-outline-secondary" id="apply-abbr"><i class="bi bi-search"></i> Automatic abbr.</a>
+        <a href="#" class="btn btn-sm btn-outline-success" id="save-doc"><i class="bi bi-save"></i> Save</a>
+      </div>
+      <div id="results" class="text-start" style="display: none;">
+        <div class="row">
+          <div class="col-9">
+            <ul ></ul>
+          </div>
+          <div class="col-3">
+            <button type="button" class="btn-close" aria-label="Close"></button>
+          </div>
+        </div>
+      </div>
+      <textarea class="form-control m-2 h-100" id="xml" name="content">{{page.page_content}}</textarea>
+    </div>
+    <div class="col-md-6">
+      <div class="btn-group btn-group-sm m-2">
+        <a href="#" class="btn btn-outline-primary" id="toggle-hide"><i class="bi-eye-slash"></i> Toggle visibility of original text</a>
+      </div>
+      <div class="m-2 p-2 border-1 round" id="preview">
+
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript" src="{{url_for('static', filename='js/editor.js')}}"></script>
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{url_for('static', filename='css/editor.css')}}">
+{% endblock %}

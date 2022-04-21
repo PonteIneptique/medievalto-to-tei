@@ -7,6 +7,70 @@
 }
 
 
-textarea, #preview {
+textarea, #preview, .junicode {
     font-family: 'Junicode Two Beta' !important;
+}
+
+abbr, corr, orig, expan {
+  display: inline-block;
+}
+abbr {
+  display: inline-block;
+  color: darkgray;
+  font-style: italic;
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+}
+
+abbr::before {
+  display: inline-block;
+  content: "[";
+  white-space: pre;
+}
+abbr::after {
+  display: inline-block;
+  content: "]";
+  white-space: pre;
+}
+
+expan {
+  display: inline-block;
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+}
+
+lb {
+}
+lb::before {
+  content: "\A";
+  white-space: pre;
+}
+lb::after {
+  display: inline-block;
+  content: "⏎ ";
+}
+
+choice[type="add-space"] corr {
+  display: inline-block;
+  color: darkgray;
+  background-color: darkgray;
+  white-space: pre;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+}
+
+choice[type="hyphenization"] orig > lb::before {
+  content : "";
+  white-space: normal;
+}
+choice[type="hyphenization"] orig > lb::after {
+  text-decoration: line-through;
+}
+.hide-orig choice[type="hyphenization"] orig,
+.hide-orig abbr,
+.hide-orig choice[type="add-space"] orig {
+  display: none!important;
+}
+.btn-close {
+  cursor: pointer;
 }
