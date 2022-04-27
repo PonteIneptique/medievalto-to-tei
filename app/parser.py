@@ -4,6 +4,8 @@ from dataclasses import dataclass
 import lxml.etree as ET
 import regex as re
 from collections import defaultdict, Counter
+from xml.sax.saxutils import escape
+
 
 if TYPE_CHECKING:
     from app.models import Page
@@ -56,7 +58,7 @@ def page_to_tei(content: str) -> str:
             r'<choice type="add-space"><orig></orig><corr> </corr></choice>',
             _re_hyph.sub(
                 r'<choice type="hyphenization"><orig>\g<1></orig><corr></corr></choice>',
-                _re_abbr.sub(r"<choice><abbr>\g<1></abbr><expan>\g<2></expan></choice>", content)
+                _re_abbr.sub(r"<choice><abbr>\g<1></abbr><expan>\g<2></expan></choice>", escape(content))
             )
         )
     )
